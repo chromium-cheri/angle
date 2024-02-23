@@ -624,6 +624,9 @@ angle_static_library("angle_gpu_info_util") {
         "Xi",
         "Xext",
       ]
+      if (is_bsd) {
+        libs += [ "GL" ]
+      }
     }
 
     if (angle_use_wayland && angle_has_build) {
