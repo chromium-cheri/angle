@@ -103,7 +103,11 @@ class TSymbol : angle::NonCopyable
     const SymbolClass mSymbolClass : 4;
 };
 
+#if defined(__CHERI_PURE_CAPABILITY__)
+static_assert(sizeof(TSymbol) <= 48, "Size check failed");
+#else // defined(__CHERI_PURE_CAPABILITY__)
 static_assert(sizeof(TSymbol) <= 24, "Size check failed");
+#endif // defined(__CHERI_PURE_CAPABILITY__)
 
 // Variable.
 // May store the value of a constant variable of any type (float, int, bool or struct).
