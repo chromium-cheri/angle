@@ -965,8 +965,12 @@ class DescriptorSetLayoutDesc final
         VkSampler immutableSampler;
     };
 
+#if defined(__CHERI_PURE_CAPABILITY__)
+    static_assert(sizeof(PackedDescriptorSetBinding) == 32, "Unexpected size");
+#else // defined(__CHERI_PURE_CAPABILITY__)
     // 4x 32bit
     static_assert(sizeof(PackedDescriptorSetBinding) == 16, "Unexpected size");
+#endif // defined(__CHERI_PURE_CAPABILITY__)
 
     // This is a compact representation of a descriptor set layout.
     std::array<PackedDescriptorSetBinding, kMaxDescriptorSetLayoutBindings>
