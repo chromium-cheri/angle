@@ -962,6 +962,9 @@ class DescriptorSetLayoutDesc final
         uint8_t stages;  // Stores a packed VkShaderStageFlags.
         uint16_t count;  // Stores a packed uint32_t descriptorCount.
         uint32_t pad;
+#if defined(__CHERI_PURE_CAPABILITY__)
+        ANGLE_MAYBE_UNUSED_PRIVATE_FIELD char padCheri[sizeof(void(*)(void))-8];
+#endif // defined(__CHERI_PURE_CAPABILITY__)
         VkSampler immutableSampler;
     };
 
@@ -1016,7 +1019,7 @@ class PipelineLayoutDesc final
     PackedPushConstantRange mPushConstantRange;
     ANGLE_MAYBE_UNUSED_PRIVATE_FIELD uint32_t mPadding;
 #if defined(__CHERI_PURE_CAPABILITY__)
-    ANGLE_MAYBE_UNUSED_PRIVATE_FIELD uint64_t mPaddingCheri;
+    ANGLE_MAYBE_UNUSED_PRIVATE_FIELD char mPaddingCheri[sizeof(void(*)(void))-8];
 #endif // defined(__CHERI_PURE_CAPABILITY__)
 
     // Verify the arrays are properly packed.
