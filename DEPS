@@ -19,6 +19,7 @@ gclient_gn_args = [
 vars = {
   'android_git': 'https://android.googlesource.com',
   'chromium_git': 'https://chromium.googlesource.com',
+  'chromium_cheri_git': 'https://github.com/chromium-cheri',
   'chrome_internal_git': 'https://chrome-internal.googlesource.com',
   'swiftshader_git': 'https://swiftshader.googlesource.com',
   'dawn_git': 'https://dawn.googlesource.com',
@@ -836,7 +837,7 @@ deps = {
 
   # glmark2 is a GPL3-licensed OpenGL ES 2.0 benchmark. We use it for testing.
   'third_party/glmark2/src': {
-    'url': Var('chromium_git') + '/external/github.com/glmark2/glmark2@6edcf02205fd1e8979dc3f3964257a81959b80c8',
+    'url': '{chromium_cheri_git}/glmark2@800ad0ac171c69f9c8b93deea71ab08372183b22',
   },
 
   'third_party/googletest/src': {
