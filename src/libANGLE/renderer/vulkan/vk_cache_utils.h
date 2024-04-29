@@ -1015,6 +1015,9 @@ class PipelineLayoutDesc final
     DescriptorSetArray<DescriptorSetLayoutDesc> mDescriptorSetLayouts;
     PackedPushConstantRange mPushConstantRange;
     ANGLE_MAYBE_UNUSED_PRIVATE_FIELD uint32_t mPadding;
+#if defined(__CHERI_PURE_CAPABILITY__)
+    ANGLE_MAYBE_UNUSED_PRIVATE_FIELD uint64_t mPaddingCheri;
+#endif // defined(__CHERI_PURE_CAPABILITY__)
 
     // Verify the arrays are properly packed.
     static_assert(sizeof(decltype(mDescriptorSetLayouts)) ==
@@ -1024,7 +1027,12 @@ class PipelineLayoutDesc final
 
 // Verify the structure is properly packed.
 static_assert(sizeof(PipelineLayoutDesc) == sizeof(DescriptorSetArray<DescriptorSetLayoutDesc>) +
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                                sizeof(PackedPushConstantRange) +
+						sizeof(uint32_t) + sizeof(uint64_t),
+#else // defined(__CHERI_PURE_CAPABILITY__)
                                                 sizeof(PackedPushConstantRange) + sizeof(uint32_t),
+#endif // defined(__CHERI_PURE_CAPABILITY__)
               "Unexpected Size");
 
 class YcbcrConversionDesc final
