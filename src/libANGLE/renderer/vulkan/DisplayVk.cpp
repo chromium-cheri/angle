@@ -506,7 +506,14 @@ void DisplayVk::generateExtensions(egl::DisplayExtensions *outExtensions) const
     outExtensions->mutableRenderBufferKHR =
         getRenderer()->getFeatures().supportsSharedPresentableImageExtension.enabled;
 
+#if !defined(__CHERI_PURE_CAPABILITY__)
+    // EGL_VULKAN_IMAGE_CREATE_INFO_HI_ANGLE an  EGL_VULKAN_IMAGE_CREATE_INFO_LO_ANGLE must be
+    // specified. They contain  hi 32bits and lo 32bits of a pointer to the memory stores a
+    // valid VkImageCreateInfo structure.
+    // On CHERI architectures constructing a pointer by combining the lo and hi 32bits results
+    // in an invalid capability.
     outExtensions->vulkanImageANGLE = true;
+#endif // !defined(__CHERI_PURE_CAPABILITY__)
 
     outExtensions->lockSurface3KHR =
         getRenderer()->getFeatures().supportsLockSurfaceExtension.enabled;

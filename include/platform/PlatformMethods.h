@@ -155,7 +155,11 @@ using AddTraceEventFunc = angle::TraceEventHandle (*)(PlatformMethods *platform,
                                                       int numArgs,
                                                       const char **argNames,
                                                       const unsigned char *argTypes,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                                      const uintptr_t *argValues,
+#else   // !__CHERI_PURE_CAPABILITY__
                                                       const unsigned long long *argValues,
+#endif  // !__CHERI_PURE_CAPABILITY__
                                                       unsigned char flags);
 inline angle::TraceEventHandle DefaultAddTraceEvent(PlatformMethods *platform,
                                                     char phase,
@@ -166,7 +170,11 @@ inline angle::TraceEventHandle DefaultAddTraceEvent(PlatformMethods *platform,
                                                     int numArgs,
                                                     const char **argNames,
                                                     const unsigned char *argTypes,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                                    const uintptr_t *argValues,
+#else   // !__CHERI_PURE_CAPABILITY__
                                                     const unsigned long long *argValues,
+#endif  // !__CHERI_PURE_CAPABILITY__
                                                     unsigned char flags)
 {
     return 0;
