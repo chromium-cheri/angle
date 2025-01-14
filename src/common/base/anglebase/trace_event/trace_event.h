@@ -631,6 +631,28 @@ class TraceStringWithCopy
     const char *m_str;
 };
 
+#if defined(__CHERI_PURE_CAPABILITY__)
+// Define setTraceValue for each allowed type. It stores the type and
+// value in the return arguments. This allows this API to avoid declaring any
+// structures so that it is portable to third_party libraries.
+#define INTERNAL_DECLARE_SET_TRACE_VALUE(actual_type, union_member, value_type_id) \
+    static inline void setTraceValue(actual_type arg, unsigned char *type,         \
+                                     uintptr_t *value)                             \
+    {                                                                              \
+        TraceValueUnion typeValue;                                                 \
+        typeValue.union_member = arg;                                              \
+        *type                  = value_type_id;                                    \
+        *value                 = typeValue.m_uint;                                 \
+    }
+// Simpler form for int types that can be safely casted.
+#define INTERNAL_DECLARE_SET_TRACE_VALUE_INT(actual_type, value_type_id)   \
+    static inline void setTraceValue(actual_type arg, unsigned char *type, \
+                                     uintptr_t *value)                     \
+    {                                                                      \
+        *type  = value_type_id;                                            \
+        *value = static_cast<uintptr_t>(arg);                              \
+    }
+#else   // !__CHERI_PURE_CAPABILITY__
 // Define setTraceValue for each allowed type. It stores the type and
 // value in the return arguments. This allows this API to avoid declaring any
 // structures so that it is portable to third_party libraries.
@@ -651,6 +673,7 @@ class TraceStringWithCopy
         *type  = value_type_id;                                            \
         *value = static_cast<unsigned long long>(arg);                     \
     }
+#endif  // !__CHERI_PURE_CAPABILITY__
 
 INTERNAL_DECLARE_SET_TRACE_VALUE_INT(unsigned long long, TRACE_VALUE_TYPE_UINT)
 INTERNAL_DECLARE_SET_TRACE_VALUE_INT(unsigned int, TRACE_VALUE_TYPE_UINT)
@@ -673,7 +696,11 @@ INTERNAL_DECLARE_SET_TRACE_VALUE(const TraceStringWithCopy &,
 
 static inline void setTraceValue(const std::string &arg,
                                  unsigned char *type,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                 uintptr_t *value)
+#else   // !__CHERI_PURE_CAPABILITY__
                                  unsigned long long *value)
+#endif  // !__CHERI_PURE_CAPABILITY__
 {
     TraceValueUnion typeValue;
     typeValue.m_string = arg.data();
@@ -683,13 +710,21 @@ static inline void setTraceValue(const std::string &arg,
 
 static inline void unpackArguments(const char **names,
                                    unsigned char *types,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                   uintptr_t *values)
+#else   // !__CHERI_PURE_CAPABILITY__
                                    unsigned long long *values)
+#endif  // !__CHERI_PURE_CAPABILITY__
 {}
 
 template <class ArgType, class... Args>
 static inline void unpackArguments(const char **names,
                                    unsigned char *types,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                   uintptr_t *values,
+#else   // !__CHERI_PURE_CAPABILITY__
                                    unsigned long long *values,
+#endif  // !__CHERI_PURE_CAPABILITY__
                                    const char *argName,
                                    const ArgType &argVal,
                                    const Args... args)
@@ -723,7 +758,11 @@ static inline angle::TraceEventHandle addTraceEvent(angle::PlatformMethods *plat
         constexpr std::size_t numArgs = sizeof...(Args) / 2;
         const char *argNames[numArgs];
         unsigned char argTypes[numArgs];
+#if defined(__CHERI_PURE_CAPABILITY__)
+        uintptr_t argValues[numArgs];
+#else   // !__CHERI_PURE_CAPABILITY__
         unsigned long long argValues[numArgs];
+#endif  // !__CHERI_PURE_CAPABILITY__
         unpackArguments(argNames, argTypes, argValues, args...);
 
         return TRACE_EVENT_API_ADD_TRACE_EVENT(platform, phase, categoryEnabled, name, id, numArgs,

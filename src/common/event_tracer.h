@@ -19,7 +19,11 @@ angle::TraceEventHandle AddTraceEvent(PlatformMethods *platform,
                                       int numArgs,
                                       const char **argNames,
                                       const unsigned char *argTypes,
+#if defined(__CHERI_PURE_CAPABILITY__)
+                                      const uintptr_t *argValues,
+#else   // !__CHERI_PURE_CAPABILITY__
                                       const unsigned long long *argValues,
+#endif  // !__CHERI_PURE_CAPABILITY__
                                       unsigned char flags);
 }  // namespace angle
 
