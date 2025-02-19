@@ -11,6 +11,9 @@
 #if defined(__OpenBSD__) || defined(__FreeBSD__)
 #include <GL/glx.h>
 #include <GL/glxext.h>
+#if !defined(GLX_MESA_query_renderer)
+#error("glXQueryCurrentRendererIntegerMESA undefined")
+#endif
 #endif
 #include <X11/Xlib.h>
 
@@ -33,31 +36,39 @@ namespace angle
 #if defined(__OpenBSD__) || defined(__FreeBSD__)
 bool CollectMesaCardInfo(std::vector<GPUDeviceInfo> *devices)
 {
-    unsigned int vid[3], did[3];
+    unsigned int vid, did;
 
     Display *display = XOpenDisplay(NULL);
-    if (!display) {
+    if (display == NULL) {
+        return false;
+    }
+ 
+    int screen = DefaultScreen(display);
+
+    const char *extensions = glXQueryExtensionsString(display, screen);
+    if (extensions == NULL) {
         return false;
     }
 
     PFNGLXQUERYRENDERERINTEGERMESAPROC queryInteger =
         (PFNGLXQUERYRENDERERINTEGERMESAPROC) glXGetProcAddressARB((const GLubyte *)
         "glXQueryRendererIntegerMESA");
-
-    if (!queryInteger)
+    if (queryInteger == NULL) {
         return false;
+    }
 
     bool vendor_ret =
-        queryInteger(display, 0, 0, GLX_RENDERER_VENDOR_ID_MESA, vid);
+        queryInteger(display, screen, 0, GLX_RENDERER_VENDOR_ID_MESA, &vid);
     bool device_ret =
-        queryInteger(display, 0, 0, GLX_RENDERER_DEVICE_ID_MESA, did);
-
-    if (vendor_ret && device_ret) {
-        GPUDeviceInfo info;
-        info.vendorId = vid[0];
-        info.deviceId = did[0];
-        devices->push_back(info);
+        queryInteger(display, screen, 0, GLX_RENDERER_DEVICE_ID_MESA, &did);
+    if (!vendor_ret || !device_ret) {
+        return false;
     }
+
+    GPUDeviceInfo info;
+    info.vendorId = vid;
+    info.deviceId = did;
+    devices->push_back(info);
 
     return true;
 }
