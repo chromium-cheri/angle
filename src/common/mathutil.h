@@ -1408,19 +1408,37 @@ T roundUp(const T value, const T alignment)
     return temp - temp % alignment;
 }
 
+#if __has_builtin(__builtin_align_up)
+template <typename T>
+constexpr T roundUpPow2(const T value, const size_t alignment)
+{
+    ASSERT(gl::isPow2(alignment));
+    return __builtin_align_up(value, alignment);
+}
+#else
 template <typename T>
 constexpr T roundUpPow2(const T value, const T alignment)
 {
     ASSERT(gl::isPow2(alignment));
     return (value + alignment - 1) & ~(alignment - 1);
 }
+#endif
 
+#if __has_builtin(__builtin_align_up)
+template <typename T>
+constexpr T roundDownPow2(const T value, const size_t alignment)
+{
+    ASSERT(gl::isPow2(alignment));
+    return __builtin_align_down(value, alignment);
+}
+#else
 template <typename T>
 constexpr T roundDownPow2(const T value, const T alignment)
 {
     ASSERT(gl::isPow2(alignment));
     return value & ~(alignment - 1);
 }
+#endif
 
 template <typename T>
 angle::CheckedNumeric<T> CheckedRoundUp(const T value, const T alignment)
