@@ -38,7 +38,7 @@ EGLNativeWindowType DisplayWindow::getNativeWindow() const
 
 EGLNativeDisplayType DisplayWindow::getNativeDisplay() const
 {
-    return NULL;
+    return (EGLNativeDisplayType) NULL;
 }
 
 void DisplayWindow::messageLoop() {}
